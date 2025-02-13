@@ -56,6 +56,7 @@ public class Constants {
         public static final boolean kFrontRightDriveReversed = false;
         public static final boolean kBackRightDriveReversed = false;
 
+        //CTR CANcoders
         public static final int kFrontLeftDriveAbsoluteEncoderPort = 20;
         public static final int kBackLeftDriveAbsoluteEncoderPort = 21;
         public static final int kFrontRightDriveAbsoluteEncoderPort = 22;
@@ -107,5 +108,17 @@ public class Constants {
         public static final double kDeadband = 0.15;
         public static final int fieldOrientedButton = 12;
         public static final int kDriveThrottle = 3;
+    }
+
+    public final class ElbowConstants {
+        public static final int kDriverControllerPort = 100;
+    }
+
+    public final class ElevatorConstants {
+        public static final int kDriverControllerPort = 100;        
+    }
+
+    public final class GripperConstants {
+        public static final int kDriverControllerPort = 100;        
     }
 }
