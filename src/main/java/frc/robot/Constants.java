@@ -33,19 +33,19 @@ public class Constants {
         
         // Distance between front and back wheels
         public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-                new Translation2d(kWheelBase / 2, kTrackWidth / 2),//front left
-                new Translation2d(kWheelBase / 2, -kTrackWidth / 2),//front right
-                new Translation2d(-kWheelBase / 2, kTrackWidth / 2),//back left
-                new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));//back right
+                new Translation2d(kWheelBase / 2, kTrackWidth / 2),     //front left
+                new Translation2d(kWheelBase / 2, -kTrackWidth / 2),    //front right
+                new Translation2d(-kWheelBase / 2, kTrackWidth / 2),    //back left
+                new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));  //back right
 
-        public static final int kFrontLeftDriveMotorPort = 10;
-        public static final int kFrontLeftTurningMotorPort = 11;
-        public static final int kBackLeftDriveMotorPort = 12;
-        public static final int kBackLeftTurningMotorPort = 13;
-        public static final int kFrontRightDriveMotorPort = 14;
-        public static final int kFrontRightTurningMotorPort = 15;
-        public static final int kBackRightDriveMotorPort = 16;
-        public static final int kBackRightTurningMotorPort = 17;
+        public static final int kFrontLeftDriveMotorPort = 16;      //FLD
+        public static final int kFrontLeftTurningMotorPort = 11;    //FLT
+        public static final int kBackLeftDriveMotorPort = 10;       //BLD
+        public static final int kBackLeftTurningMotorPort = 31;     //BLT
+        public static final int kFrontRightDriveMotorPort = 15;     //FRD
+        public static final int kFrontRightTurningMotorPort = 14;   //FRT
+        public static final int kBackRightDriveMotorPort = 30;      //BRD
+        public static final int kBackRightTurningMotorPort = 32;    //BRT
 
         public static final boolean kFrontLeftTurningEncoderReversed = false;
         public static final boolean kBackLeftTurningEncoderReversed = false;
