@@ -111,14 +111,14 @@ public class Constants {
     }
 
     public final class ElbowConstants {
-        public static final int kDriverControllerPort = 100;
+        public static final int kDriverControllerPort = 17;
     }
 
     public final class ElevatorConstants {
-        public static final int kDriverControllerPort = 100;        
+        public static final int kDriverControllerPort = 12;        
     }
 
     public final class GripperConstants {
-        public static final int kDriverControllerPort = 100;        
+        public static final int kDriverControllerPort = 13;        
     }
 }
