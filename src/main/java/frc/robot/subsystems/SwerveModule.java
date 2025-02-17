@@ -40,7 +40,7 @@ public class SwerveModule {
     //private final RelativeEncoder turnEncoder;
 
     private final PIDController turnPidController;
-    //private final SparkClosedLoopController turnSparkPIDController;
+    private final SparkClosedLoopController turnSparkClosedLoopController;
 
     private final CANcoder absoluteEncoder;
     private final boolean absoluteEncoderReversed;
@@ -62,50 +62,50 @@ public class SwerveModule {
         driveMotor = new SparkMax(driveMotorId, MotorType.kBrushless);
         turnMotor = new SparkMax(turnMotorId, MotorType.kBrushless);
 
-        // Set motor values
-        driveConfig = new SparkMaxConfig();
-        driveConfig.inverted(driveMotorReversed).idleMode(IdleMode.kCoast);
-        driveConfig.encoder.positionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter).velocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
-        driveConfig.smartCurrentLimit(40);
-        driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        turnConfig = new SparkMaxConfig();
-        turnConfig.inverted(turnMotorReversed).idleMode(IdleMode.kCoast);
-        turnConfig.encoder.positionConversionFactor(ModuleConstants.kTurnEncoderRot2Rad).velocityConversionFactor(ModuleConstants.kTurnEncoderRPM2RadPerSec);
-        turnConfig.closedLoop.pid(turnMotorId, absoluteEncoderId, absoluteEncoderOffset);
-        turnConfig.smartCurrentLimit(40);
-        driveMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        //RoboRIO PID controller, should switch to Spark max pid controller
+        //PIDController runs the code on the RoboRIO
         turnPidController = new PIDController(ModuleConstants.kPTurning, 0, 0);
         turnPidController.enableContinuousInput(-Math.PI, Math.PI);
         
-        // Never used in 2024 code
-        //turnSparkPIDController = turnMotor.getClosedLoopController(); //turnMotor.getPIDController();
+        // SparkClosedLoopController runs the code on the SparkMax
+        // Offloads control calculations to the motor controllers
+        // Features:
+        //  - higher update rates (10ms vs 20ms)
+        //  - built-in features like arbitrary feedforward and SmartMotion profiling
+        turnSparkClosedLoopController = turnMotor.getClosedLoopController();
+
+        // Configure drive motor values
+        driveConfig = new SparkMaxConfig();
+        driveConfig
+            .inverted(driveMotorReversed)
+            .idleMode(IdleMode.kCoast);
+        driveConfig.encoder
+            .positionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter)
+            .velocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
+        driveConfig
+            .smartCurrentLimit(40);
+        driveConfig.closedLoop
+            .feedbackSensor(null)
+            .pid(ModuleConstants.kPTurning, ModuleConstants.kITuning, ModuleConstants.kDTuning);
+        driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        // Configure turn motor values
+        turnConfig = new SparkMaxConfig();
+        turnConfig
+            .inverted(turnMotorReversed)
+            .idleMode(IdleMode.kCoast);
+        turnConfig.encoder
+            .positionConversionFactor(ModuleConstants.kTurnEncoderRot2Rad)
+            .velocityConversionFactor(ModuleConstants.kTurnEncoderRPM2RadPerSec);
+        turnConfig.smartCurrentLimit(40);
+        turnConfig.closedLoop
+            .feedbackSensor(null)
+            .pid(ModuleConstants.kPTurning, ModuleConstants.kITuning, ModuleConstants.kDTuning);
+        turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         //CANcoder.optimizeBusUtilizationForAll(absoluteEncoder);
         absoluteEncoder.optimizeBusUtilization();
 
         resetEncoders();
-        
-        // 2024 way of doing it
-        //driveMotor.restoreFactoryDefaults();
-        //driveMotor.setInverted(driveMotorReversed);
-        //driveEncoder = driveMotor.getEncoder();
-        //driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter);
-        //driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
-        //driveMotor.setSmartCurrentLimit(40);
-        //driveMotor.setIdleMode(IdleMode.kCoast);
-        //driveMotor.burnFlash();
-
-        //turnMotor.restoreFactoryDefaults();
-        //turnMotor.setInverted(turnMotorReversed);
-        //turnEncoder = turnMotor.getEncoder();
-        //turnEncoder.setPositionConversionFactor(ModuleConstants.kTurnEncoderRot2Rad);
-        //turnEncoder.setVelocityConversionFactor(ModuleConstants.kTurnEncoderRPM2RadPerSec);
-        //turnMotor.setSmartCurrentLimit(40);
-        //turnMotor.setIdleMode(IdleMode.kCoast);
-        //turnMotor.burnFlash();
     }
 
     public double getDrivePosition() {
@@ -122,7 +122,6 @@ public class SwerveModule {
         //SmartDashboard.putNumber("wheelSpeed",driveEncoder.getVelocity());
         return driveMotor.configAccessor.encoder.getVelocityConversionFactor();
         //return driveEncoder.getVelocity();
-
     }
 
     public double getTurningVelocity() {
