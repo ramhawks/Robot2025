@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -79,13 +80,24 @@ public class SwerveModule {
             .inverted(driveMotorReversed)
             .idleMode(IdleMode.kCoast);
         driveConfig.encoder
-            .positionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter)
-            .velocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
+            .positionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter)        // kDriveMotorGearRatio * Math.PI * kWheelDiameterMeters;
+            .velocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec); // kDriveEncoderRot2Meter / 60;
         driveConfig
             .smartCurrentLimit(40);
         driveConfig.closedLoop
-            .feedbackSensor(null)
+            .feedbackSensor(FeedbackSensor.kPrimaryEncoder) // What should this value be?
             .pid(ModuleConstants.kPTurning, ModuleConstants.kITuning, ModuleConstants.kDTuning);
+
+        /*
+        *  Apply the configuration to the SPARK MAX.
+        *
+        *  kResetSafeParameters is used to get the SPARK MAX to a known state. This
+        *  is useful in case the SPARK MAX is replaced.
+        *
+        *  kPersistParameters is used to ensure the configuration is not lost when
+        *  the SPARK MAX loses power. This is useful for power cycles that may occur
+        *  mid-operation.
+        */
         driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // Configure turn motor values
@@ -98,14 +110,30 @@ public class SwerveModule {
             .velocityConversionFactor(ModuleConstants.kTurnEncoderRPM2RadPerSec);
         turnConfig.smartCurrentLimit(40);
         turnConfig.closedLoop
-            .feedbackSensor(null)
+            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pid(ModuleConstants.kPTurning, ModuleConstants.kITuning, ModuleConstants.kDTuning);
         turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         //CANcoder.optimizeBusUtilizationForAll(absoluteEncoder);
-        absoluteEncoder.optimizeBusUtilization();
+        absoluteEncoder.optimizeBusUtilization(); // what does this do?
 
         resetEncoders();
+
+        // Initialize dashboard values
+        SmartDashboard.setDefaultNumber("Target Position", 0);
+        SmartDashboard.setDefaultNumber("Target Velocity", 0);
+        SmartDashboard.setDefaultBoolean("Control Mode", false);
+        SmartDashboard.setDefaultBoolean("Reset Encoder", false);
+    }
+
+    public void teleopPeriodic() {
+
+    }
+
+    public void robotPeriodic() {
+        // Display encoder position and velocity
+        SmartDashboard.putNumber("Actual Position", encoder.getPosition());
+        SmartDashboard.putNumber("Actual Velocity", encoder.getVelocity());
     }
 
     public double getDrivePosition() {
