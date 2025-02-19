@@ -80,20 +80,30 @@ public class RobotContainer {
       //     () -> m_SwerveDrive.drive(
       //       -MathUtil.applyDeadband(xboxController.getLeftY(), OIConstants.kDeadband),   //Left Y
       //       -MathUtil.applyDeadband(xboxController.getLeftX(), OIConstants.kDeadband),   //Left X
-      //       -MathUtil.applyDeadband(xboxController.getRightX(), OIConstants.kDeadband), //Right X
+      //       -MathUtil.applyDeadband(xboxController.getRightX(), OIConstants.kDeadband),  //Right X
       //       true),
       //     m_SwerveDrive)
       // );
 
       // Option 2: Joystick
+      /* 
       m_SwerveDrive.setDefaultCommand(
         new SwerveJoystickCommand(
-          m_SwerveDrive, 
-          () -> -joystick.getRawAxis(OIConstants.kDriverYAxis), 
-          () -> joystick.getRawAxis(OIConstants.kDriverXAxis), 
-          () -> joystick.getRawAxis(OIConstants.kDriverRotAxis), 
-          () -> !joystick.getRawButton(OIConstants.kDriverFieldOrientedButtonIdx)
+          m_SwerveDrive,                                                            // SwerveSubsystem
+          () -> -joystick.getRawAxis(1),                     // xSpdFunction
+          () -> joystick.getRawAxis(0),                      // ySpdFunction
+          () -> joystick.getRawAxis(2),                    // turningSpdFunction
+          () -> !joystick.getRawButton(OIConstants.kDriverFieldOrientedButtonIdx)   // fieldOrientedFunction
         )
+      );*/
+
+      m_SwerveDrive.setDefaultCommand(
+        new teleopSwerve(
+          m_SwerveDrive, 
+          () -> -joystick.getRawAxis(1), 
+          () -> joystick.getRawAxis(0), 
+          () -> joystick.getRawAxis(2), 
+          () -> !joystick.getRawButton(OIConstants.kDriverFieldOrientedButtonIdx))
       );
       // Configure the button bindings
       configureButtonBindings();      

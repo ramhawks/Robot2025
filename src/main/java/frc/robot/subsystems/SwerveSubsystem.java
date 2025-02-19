@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -55,15 +56,16 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Pigeon2 gyro = new Pigeon2(Sensors.GYRO_ID);
 
-    private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(
-        DriveConstants.kDriveKinematics, new Rotation2d(),
+    private final SwerveDrivePoseEstimator odometer = new SwerveDrivePoseEstimator(
+        DriveConstants.kDriveKinematics, 
+        Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble()),
         new SwerveModulePosition[] {
           frontLeft.getPosition(),
           frontRight.getPosition(),
           backLeft.getPosition(),
           backRight.getPosition()
-        }, new Pose2d(5.0, 13.5, new Rotation2d()));
-
+        }, new Pose2d(0, 0, new Rotation2d()));
+/* 
     public SwerveSubsystem() {
         new Thread(() -> {
             try {
@@ -76,7 +78,7 @@ public class SwerveSubsystem extends SubsystemBase {
             }catch (Exception e) {
             }
         }).start();
-    }
+    }*/
 
     public void resetTurn(){
         frontLeft.resetTurn();
@@ -99,7 +101,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return odometer.getPoseMeters();
+        return odometer.getEstimatedPosition();
     }
 
     public void resetOdometry(Pose2d pose) {
