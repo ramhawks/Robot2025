@@ -92,7 +92,9 @@ public class Constants {
         public static final double kTurnEncoderRot2Rad = kTurningMotorGearRatio * 2 * Math.PI;
         public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
         public static final double kTurnEncoderRPM2RadPerSec = kTurnEncoderRot2Rad / 60;
-        public static final double kPTurning = 0.4;
+        public static final double kPTurning = 0.4; // Need to test and adjust this value as needed
+        public static final double kITuning = 0.0;  // Need to test and adjust this value as needed
+        public static final double kDTuning = 0.0;  // Need to test and adjust this value as needed
     }
 
     public final class Sensors {
